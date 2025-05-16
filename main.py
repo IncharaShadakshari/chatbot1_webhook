@@ -3,23 +3,20 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+
 @app.post("/webhook")
 async def dialogflow_webhook(request: Request):
-    try:
-        body = await request.json()
-        
-        # Extract user's query from Dialogflow request
-        user_query = body.get('queryResult', {}).get('queryText', '')
-        
-        # Simple bot response logic (can be replaced with custom logic)
-        reply_text = f"You said: {user_query}"
-
-        return JSONResponse({
-            "fulfillmentText": reply_text  # Dialogflow uses this to respond
-        })
+    req_data = await request.json()
     
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"fulfillmentText": "Something went wrong on the server!"}
-        )
+    # Extract user query or intent name if needed
+    query_text = req_data.get("queryResult", {}).get("queryText", "No query")
+
+    # Sample response to Dialogflow
+    response = {
+        "fulfillmentText": f"You said: {query_text}"
+    }
+
+    return JSONResponse(content=response)
